@@ -1,27 +1,26 @@
-From d9612930f0feb78c976f8a0f980afe15f01f67e8 Mon Sep 17 00:00:00 2001
-From: github-actions <github-actions@github.com>
-Date: Fri, 1 Mar 2024 23:35:03 +0100
-Subject: [PATCH] fix: matches dates
+From e37ea6397b2b85caac346618d6dd8e22426d0158 Mon Sep 17 00:00:00 2001
+From: Souler <juanjoseherrero@playtomic.io>
+Date: Thu, 3 Jul 2025 15:36:01 +0200
+Subject: [PATCH] fix: format dates for matches table
 
 ---
- src/views/Matches/Matches.tsx | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ src/views/Matches/Matches.tsx | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
 diff --git a/src/views/Matches/Matches.tsx b/src/views/Matches/Matches.tsx
-index a2ee126..33ca18e 100644
+index 4d08461..9bbd8bf 100644
 --- a/src/views/Matches/Matches.tsx
 +++ b/src/views/Matches/Matches.tsx
-@@ -49,19 +49,21 @@ export function Matches(props: MatchesProps) {
-           </TableHead>
+@@ -68,18 +68,21 @@ export function Matches(props: MatchesProps) {
            <TableBody>
-             {matches.map((match) => {
--              // Remember, match dates look like: 2024-01-04T09:00Z
+             {matches.map(match => {
+               // Remember, match dates look like: 2024-01-04T09:00Z
 -              const startDate = match.startDate.substring(0, 10)
 -              const startTime = match.startDate.substring(11, 16)
 -              const endTime = match.endDate.substring(11, 16)
 +              const start = new Date(match.startDate)
 +              const end = new Date(match.endDate)
-+              const formatTime = (date: Date): string => 
++              const formatTime = (date: Date): string =>
 +                `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
 +              const formatDate = (date: Date): string =>
 +                `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`
@@ -39,7 +38,7 @@ index a2ee126..33ca18e 100644
 +                  <TableCell>{formatTime(end)}</TableCell>
                    <TableCell align="left">
                      <AvatarGroup max={4} sx={{ flexDirection: 'row' }}>
-                       {match.teams.flatMap(team => team.players).map(player => (
+                       {match.teams
 -- 
 2.39.0
 
