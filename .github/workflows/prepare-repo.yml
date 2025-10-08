@@ -1,0 +1,20 @@
+# IMPORTANT:
+# This workflow does nothing for now. It will be fully implemented in an upcoming PR
+name: Prepare repo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare-repo:
+    name: prepare-repo
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{github.token}}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
