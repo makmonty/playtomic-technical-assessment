@@ -1,4 +1,4 @@
-import { compilePath, mergeHeaders, parseEndpoint } from './utils'
+import { compilePath, dataToCSV, mergeHeaders, parseEndpoint } from './utils'
 
 describe('compilePath', () => {
   test('includes params as search at the end of the pathname', () => {
@@ -78,5 +78,31 @@ describe('parseEndpoint', () => {
     expect(() => parseEndpoint('GET v1/matches')).toThrowError(
       'Missing leading / for pathname of endpoint: GET v1/matches',
     )
+  })
+})
+
+describe('dataToCSV', () => {
+  test('should return an empty string if the data is empty', () => {
+    expect(dataToCSV([])).toBe('')
+  })
+
+  test('should convert an array of objects to CSV format with default options', () => {
+    expect(dataToCSV([{
+      id: 1,
+      name: 'Pepa'
+    }, {
+      id: 2,
+      name: 'Juana'
+    }])).toBe('id;name\r\n"1";"Pepa"\r\n"2";"Juana"')
+  })
+
+  test('should use the passed cell separator', () => {
+    expect(dataToCSV([{
+      id: 1,
+      name: 'Pepa'
+    }, {
+      id: 2,
+      name: 'Juana'
+    }], { delimiter: '|' })).toBe('id|name\r\n"1"|"Pepa"\r\n"2"|"Juana"')
   })
 })
