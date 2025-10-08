@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import { vi } from 'vitest'
 import { server } from '@/lib/msw/node'
 import { Matches } from './Matches'
 import { ReactNode } from 'react'
@@ -51,4 +52,30 @@ test('renders a logout button and propagates its click via props', async () => {
   await userEvent.click(logoutButton)
 
   expect(onLogoutRequest).toHaveBeenCalledOnce()
+})
+
+test('downloads as CSV when clicking on the given button', async () => {
+  // This test knows a lot about the implementation of the download feature.
+  // Ideally it shouldn't, but using the jsdom environment I can't see other way to test it.
+  // Consider the possibility of using the browser as a testing environment
+  const locationAssignStub = vi.fn().mockImplementation(() => true)
+  const createObjectURLStub = vi.fn().mockImplementation(() => 'http://example.com')
+
+  // Mock some globals
+  window.URL.createObjectURL = createObjectURLStub
+  const originalLocation = window.location
+  window.location = {
+    ...originalLocation,
+    assign: locationAssignStub
+  }
+
+  render(<Matches />, { wrapper: Wrapper })
+  const downloadAsCSVButton = screen.getByText('Download as CSV')
+  await userEvent.click(downloadAsCSVButton)
+
+  expect(locationAssignStub).toHaveBeenCalledWith('http://example.com')
+
+  // Restore the mocked globals
+  window.location = originalLocation
+  vi.restoreAllMocks()
 })
