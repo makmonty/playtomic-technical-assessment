@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import useSWR from 'swr'
 import Avatar from '@mui/material/Avatar'
 import AvatarGroup from '@mui/material/AvatarGroup'
@@ -16,6 +16,7 @@ import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import { useApiFetcher } from '@/lib/api'
 import { Match } from '@/lib/api-types'
+import { downloadCSV } from '@/lib/api/utils'
 
 export interface MatchesProps {
   onLogoutRequest?: () => void
@@ -44,6 +45,22 @@ export function Matches(props: MatchesProps) {
   const matches: Match[] = query.data.matches
   const total: number = query.data.total
 
+  const handleDownloadCSV = useCallback(() => {
+    const formattedMatches = matches.map(match => {
+      return {
+        id: match.matchId,
+        courtId: match.courtId,
+        venueId: match.venueId,
+        sport: match.sport,
+        startDate: match.startDate,
+        endDate: match.endDate,
+        team1: match.teams[0].players.map(player => player.displayName).join(', '),
+        team2: match.teams[1].players.map(player => player.displayName).join(', '),
+      }
+    })
+    downloadCSV(formattedMatches as Parameters<typeof downloadCSV>['0'])
+  }, [matches])
+
   return (
     <Stack {...otherProps}>
       <Stack direction="row" marginBottom={2} justifyContent="space-between" alignItems="center">
@@ -53,6 +70,9 @@ export function Matches(props: MatchesProps) {
             Logout
           </Button>
         </Stack>
+      </Stack>
+      <Stack direction="row" justifyContent="end">
+        <Button variant="contained" size='small' onClick={handleDownloadCSV}>Download as CSV</Button>
       </Stack>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="Matches">

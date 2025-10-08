@@ -79,4 +79,49 @@ function compilePath(pathname: string, params: URLSearchParams): string {
   return resultSearchParams.size > 0 ? `${resultPathname}?${resultSearchParams.toString()}` : resultPathname
 }
 
-export { mergeHeaders, compilePath, parseEndpoint }
+/**
+  * Given an array of objects, returns a string formatted as a CSV.
+  * It will use the keys of the first entry to add the headers if the option headers is true.
+  *
+  * @param content An array of objects
+  * @param options An object that allows setting the cell delimiter and the addition of headers
+  */
+function dataToCSV(content: Record<string, string | number>[], {
+  headers = true,
+  delimiter = ';'
+} = {}) {
+  const newLine = '\r\n'
+  if (!content.length) {
+    return ''
+  }
+
+  let csv = ''
+
+  if (headers) {
+    csv += Object.keys(content[0]).join(delimiter) + newLine
+  }
+
+  csv += content.map(
+    (row) =>
+      Object.values(row).map(cell => `"${cell.toLocaleString()}"`).join(delimiter)
+  ).join(newLine)
+
+  return csv
+}
+
+/**
+  * Given an array of objects, tells the browser to download it as a CSV file.
+  * It will use the keys of the first entry to add the headers if the option headers is true.
+  *
+  * @param content An array of objects
+  * @param options An object that allows setting the cell delimiter and the addition of headers
+  */
+function downloadCSV(content: Parameters<typeof dataToCSV>['0'], options?: Parameters<typeof dataToCSV>['1']) {
+  const csvString = dataToCSV(content, options)
+  const dataBlob = new Blob([csvString], { type: 'text/csv' })
+
+  const url = window.URL.createObjectURL(dataBlob)
+  window.location.assign(url)
+}
+
+export { mergeHeaders, compilePath, parseEndpoint, dataToCSV, downloadCSV }
